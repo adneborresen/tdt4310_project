@@ -134,7 +134,7 @@ def extract_all_pdfs(pdf_dir: Path) -> list[dict]:
             course, lecture, slide_number, pdf_page,
             title, text (cleaned), raw_text (original)
     """
-    pdf_files = sorted(pdf_dir.glob("*.pdf"))
+    pdf_files = sorted(pdf_dir.rglob("*.pdf"))
     if not pdf_files:
         print(f"No PDF files found in {pdf_dir}")
         return []
@@ -199,4 +199,5 @@ if __name__ == "__main__":
     print(f"PDFs processed: {len(lectures)}")
     print(f"Total slides extracted: {len(slides)}")
     print(f"Average words per slide: {avg_words:.1f}")
-    print(f"Min words: {min(word_counts)}, Max words: {max(word_counts)}")
+    if word_counts:
+        print(f"Min words: {min(word_counts)}, Max words: {max(word_counts)}")
