@@ -20,8 +20,8 @@ RESULTS_DIR = PROJECT_ROOT / "results"
 
 # ── Chunking ─────────────────────────────────────────────────────────────
 # Controls how slide text is split into retrieval units (chunks).
-MIN_CHUNK_WORDS = 5          # Slides with fewer words are dropped (likely title-only)
-MAX_CHUNK_WORDS = 300        # Slides exceeding this are sub-split with overlap
+MIN_CHUNK_WORDS = 1          # Only truly empty slides are dropped; title-only slides kept
+MAX_CHUNK_WORDS = 200        # SBERT truncates at ~256 tokens; 200 words ≈ safe limit
 OVERLAP_WORDS = 30           # Word overlap between sub-split segments
 INCLUDE_SLIDE_TITLE = True   # Prepend the slide title to every chunk's text
 
