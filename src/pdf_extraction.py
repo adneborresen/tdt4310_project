@@ -65,11 +65,13 @@ def extract_slides_from_pdf(pdf_path: Path) -> list[dict]:
     with pdfplumber.open(pdf_path) as pdf:
         for i, page in enumerate(pdf.pages):
             text = page.extract_text() or ""
+            has_image = len(page.images) > 0
             slides.append(
                 {
                     "slide_number": i + 1,
                     "text": text,
                     "pdf_page": i + 1,
+                    "has_image": has_image,
                 }
             )
     return slides
@@ -142,10 +144,10 @@ def extract_all_pdfs(pdf_dir: Path) -> list[dict]:
     all_slides = []
 
     for pdf_path in pdf_files:
-        # Parse the filename to get course code and lecture number
+        # Course code from parent folder (e.g. data/raw_pdfs/tdt4310/)
+        course = pdf_path.parent.name                  # e.g. "tdt4310"
         name = pdf_path.stem                           # e.g. "tdt4310_2026_lect1"
-        course = name.split("_")[0]                    # e.g. "tdt4310"
-        lect_match = re.search(r"lect(\d+)", name, re.IGNORECASE)
+        lect_match = re.search(r"lec(?:t(?:ure)?)?(\d+)", name, re.IGNORECASE)
         lecture = int(lect_match.group(1)) if lect_match else 0
 
         raw_slides = extract_slides_from_pdf(pdf_path)
@@ -163,6 +165,7 @@ def extract_all_pdfs(pdf_dir: Path) -> list[dict]:
                     "title": title,
                     "text": cleaned,
                     "raw_text": slide["text"],
+                    "has_image": slide["has_image"],
                 }
             )
 
