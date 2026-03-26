@@ -1,18 +1,19 @@
 # Semantic Search for Lecture Materials: BM25 vs SBERT
 
-
 <div>
   <p><b>Ådne Børresen</b> • <b>Richard Kraus</b></p>
 </div>
 
 *Built for TDT4310 Intelligent Text Analysis at NTNU, Spring 2026.*
 
-See [todo.md](todo.md) for an overview of what has been done and what needs to be done.
+> Motivation: While studying I have attained a huge corpus of lecture slides an learning materials from NTNU. When leaving univeristy,  I want to keep this as a knowledge database. Our system allows me to, in say 10 years time to say, "Hey I remember I learned about transformers - which course was that again, let me read up on the lecture slides from the course". While an LLM could teach me directly about transformers, its relevant because the learning resources I have previously studied are a direct extension of my knowledge of the topic, being a structured visual representation of what I've previously learned, allowing for fast revisiting of advanced topics.
 
+See [todo.md](todo.md) for an overview of what has been done and what needs to be done.
 
 In this project we look at whether a neural search model can find the right lecture slide when a student asks a question in their own words, or if keyword matching does just as well.
 
 This project builds a search system over NTNU lecture slides and compares two retrieval approaches:
+
 - **BM25** — classic keyword-based ranking (does the question share words with the slide?)
 - **SBERT** — neural embeddings that capture meaning (does the question *mean* the same thing as the slide?)
 
@@ -32,6 +33,14 @@ We test both on student-style questions, including paraphrased ones that deliber
 # Clone and set up
 git clone https://github.com/adneborresen/tdt4310_project.git
 cd tdt4310_project
+
+# Create a virtual environment and install dependencies
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On macOS/Linux:
+# source venv/bin/activate
+
 pip install -r requirements.txt
 
 # Download NLTK data
@@ -94,5 +103,3 @@ We currently have 120 student-style questions (10 per lecture), generated with t
 - **sentence-transformers** — SBERT embeddings (all-MiniLM-L6-v2)
 - **Ollama** — local LLM for evaluation and question generation
 - **pandas / matplotlib / seaborn** — analysis and visualization
-
-
