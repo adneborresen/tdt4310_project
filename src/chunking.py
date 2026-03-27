@@ -79,9 +79,13 @@ def build_chunks(slides: list[dict]) -> tuple[list[dict], list[dict]]:
 
     for slide in slides:
         # Filter based on the slide's own text (before title prepend),
-        # so slides with only a page-number title don't sneak through
+        # so slides with only a page-number title don't sneak through.
+        # Keep image-only slides (no text but has_image=True). They are
+        # placeholders for when the vision pipeline is added. Only drop
+        # slides that have neither text nor images.
         slide_word_count = len(slide["text"].split())
-        if slide_word_count < MIN_CHUNK_WORDS:
+        has_image = slide.get("has_image", False)
+        if slide_word_count < MIN_CHUNK_WORDS and not has_image:
             filtered.append(slide)
             continue
 
@@ -145,15 +149,23 @@ if __name__ == "__main__":
     print(f"\n--- Summary ---")
     print(f"Total slides: {len(slides)}")
     print(f"Chunks created: {len(chunks)}")
-    print(f"Slides filtered (< {MIN_CHUNK_WORDS} words): {len(filtered)}")
+    image_only = [c for c in chunks if c["word_count"] < MIN_CHUNK_WORDS and c["has_image"]]
+    slides_with_images = sum(1 for c in chunks if c["has_image"])
+    print(f"Slides filtered (no text, no image): {len(filtered)}")
+    print(f"Slides with images: {slides_with_images} ({slides_with_images / len(chunks) * 100:.0f}%)")
+    print(f"  of which image-only (no text, vision placeholder): {len(image_only)}")
     print(f"Sub-split chunks (> {MAX_CHUNK_WORDS} words): {sub_split}")
     if word_counts:
         avg = sum(word_counts) / len(word_counts)
         print(f"Word counts — min: {min(word_counts)}, max: {max(word_counts)}, avg: {avg:.1f}")
 
     if filtered:
-        print(f"\nFiltered slides:")
+        print(f"\nFiltered slides (no text, no image):")
         for s in filtered:
-            wc = len(s["text"].split())
             print(f"  {s['course']}_lect{s['lecture']}_slide{s['slide_number']}: "
-                  f"{wc} words — \"{s['title'][:50]}\"")
+                  f"\"{s['title'][:50]}\"")
+
+    if image_only:
+        print(f"\nImage-only slides (kept as vision placeholders):")
+        for c in image_only:
+            print(f"  {c['chunk_id']}: \"{c['title'][:50]}\"")
