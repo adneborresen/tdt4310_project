@@ -16,7 +16,7 @@ import pdfplumber
 # Allow importing config.py from the project root when running this file directly
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from config import RAW_PDFS_DIR, EXTRACTED_TEXT_DIR
+from config import RAW_PDFS_DIR, EXTRACTED_TEXT_DIR, MIN_IMAGE_WIDTH
 
 
 # ── Regex patterns for stripping recurring slide chrome ─────────────────
@@ -65,7 +65,16 @@ def extract_slides_from_pdf(pdf_path: Path) -> list[dict]:
     with pdfplumber.open(pdf_path) as pdf:
         for i, page in enumerate(pdf.pages):
             text = page.extract_text() or ""
-            has_image = len(page.images) > 0
+            has_image = any(img["width"] >= MIN_IMAGE_WIDTH for img in page.images)
+
+            # Vision hook (future): append an image description when VISION_ENABLED=True.
+            # Implement describe_image_on_slide() below and flip the config flag to use it.
+            #
+            # from config import VISION_ENABLED, VISION_MODEL
+            # if VISION_ENABLED and has_image:
+            #     img_desc = describe_image_on_slide(page, model=VISION_MODEL)
+            #     text += f"\n[Image: {img_desc}]"
+
             slides.append(
                 {
                     "slide_number": i + 1,
@@ -170,6 +179,36 @@ def extract_all_pdfs(pdf_dir: Path) -> list[dict]:
             )
 
     return all_slides
+
+
+def describe_image_on_slide(page, model: str) -> str:
+    """NOT YET IMPLEMENTED — describe slide images via a multimodal Ollama model.
+
+    When VISION_ENABLED=True in config.py, call this inside extract_slides_from_pdf()
+    for any page where has_image=True. The returned text description is appended to
+    the slide's text so image content becomes searchable.
+
+    Steps to enable:
+      1. Install a vision model:  ollama pull <VISION_MODEL>
+         Tested options: "llava:7b", "llava:13b", "llama3.2-vision", "bakllava"
+      2. Implement the ollama.chat() call here using the model and the page image.
+      3. Set VISION_ENABLED = True in config.py.
+      4. Uncomment the vision hook in extract_slides_from_pdf().
+
+    Args:
+        page:  A pdfplumber Page object for the slide containing the image.
+        model: Ollama vision model name (from config.VISION_MODEL).
+
+    Returns:
+        A text description of the image content.
+
+    Raises:
+        NotImplementedError: Always, until this function is implemented.
+    """
+    raise NotImplementedError(
+        "Vision image description is not yet implemented. "
+        "Keep VISION_ENABLED=False in config.py until this function is complete."
+    )
 
 
 if __name__ == "__main__":
