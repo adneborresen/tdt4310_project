@@ -46,8 +46,12 @@ pip install -r requirements.txt
 # Download NLTK data
 python -c "import nltk; nltk.download('punkt_tab'); nltk.download('stopwords')"
 
-# Install Ollama (https://ollama.com) and pull a model
+# Install Ollama from https://ollama.com, then pull the model used for question generation
 ollama pull llama3:8b
+
+# Ollama runs as a background server. Start it with:
+ollama serve
+# (keep this running in a separate terminal whenever using question_gen.py or llm_judge.py)
 ```
 
 Then drop lecture PDFs into `data/raw_pdfs/tdt4310` and run the pipeline. Right now the lectures are just the TDT4310 lectures from 2026, directly downloaded from the Blacboard page, having removed the "full" part from the filenames.
